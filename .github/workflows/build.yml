@@ -1,26 +1,24 @@
-name: Build
-on: [push, pull_request]
-
+name: Build APK
+on: push
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
-      - name: Build APK
-        uses: ArtemSBulgakov/buildozer-action@v1
-        with:
-          buildozer_version: master
-          command: buildozer android debug
-          repository_root: .
-
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps libgstreamer-plugins-base1.0-dev
+          pip install --upgrade pip
+          pip install "buildozer>=1.5.0" "cython<3.0"
+      - name: Build with Buildozer
+        run: buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Zenith-APK
+          name: Zenith-Messenger
           path: bin/*.apk
